@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<title>Phiếu nhập kho - Mẫu số 01-VT</title>
+<style>
+  body { font-family: "Times New Roman", serif; max-width: 900px; margin: 24px auto; color: #222; }
+  h1 { text-align: center; text-transform: uppercase; margin-bottom: 4px; }
+  .header-row { display: flex; justify-content: space-between; margin-bottom: 12px; gap: 24px; }
+  .header-row div { font-size: 14px; }
+  .org-fields { display: flex; flex-direction: column; gap: 6px; flex: 0.5; }
+  .org-fields label { display: block; font-size: 13px; margin-bottom: 2px; }
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; margin-bottom: 16px; }
+  label { display: block; font-size: 13px; margin-bottom: 2px; }
+  input, select { width: 100%; padding: 6px; box-sizing: border-box; font-family: inherit; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th, td { border: 1px solid #333; padding: 6px; font-size: 13px; text-align: center; }
+  td input { border: none; text-align: right; padding: 2px; }
+  td input[data-field="material_name"] { text-align: left; }
+  .actions { margin-top: 8px; display: flex; gap: 8px; }
+  button { padding: 8px 16px; cursor: pointer; }
+  .signatures { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; margin-top: 40px; gap: 8px; }
+  .signatures div span { display: block; font-size: 12px; margin-bottom: 6px; }
+  .signatures input { text-align: center; margin-top: 4px; }
+  .total-row { text-align: right; font-weight: bold; margin-top: 8px; }
+  #message { margin-top: 12px; padding: 8px; display: none; }
+  #message.error { background: #fdecea; color: #b3261e; display: block; }
+  #message.success { background: #e6f4ea; color: #1e7e34; display: block; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; border-bottom: 2px solid #333; margin-bottom: 20px; font-family: Arial, sans-serif; }
+  .tab-btn { padding: 10px 20px; border: 1px solid #333; border-bottom: none; background: #eee; cursor: pointer; font-size: 14px; }
+  .tab-btn.active { background: #333; color: #fff; font-weight: bold; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* List tab */
+  #notesTable td, #notesTable th { text-align: left; }
+  #notesTable td.num, #notesTable th.num { text-align: right; }
+  .link-btn { background: none; border: none; color: #1a5276; text-decoration: underline; cursor: pointer; padding: 0; font-size: 13px; }
+  .back-btn { margin-bottom: 12px; }
+  .detail-header dt { font-weight: bold; font-size: 12px; color: #555; margin-top: 8px; }
+  .detail-header dd { margin: 0; font-size: 14px; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px 24px; margin-bottom: 16px; font-family: Arial, sans-serif; }
+  .empty-state { text-align: center; color: #888; padding: 24px; font-family: Arial, sans-serif; }
+  .loading-state { text-align: center; color: #555; padding: 24px; font-family: Arial, sans-serif; }
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button type="button" class="tab-btn active" data-tab="createTab">Tạo phiếu mới</button>
+  <button type="button" class="tab-btn" data-tab="listTab">Danh sách phiếu</button>
+</div>
+
+<div id="createTab" class="tab-content active">
+
+<div class="header-row">
+  <div class="org-fields">
+    <label>Đơn vị</label>
+    <input id="orgUnit" value="Công ty CP Phần mềm Y tế Việt Nam" />
+    <label>Bộ phận</label>
+    <input id="departmentName" placeholder="Phòng Kho vận" />
+  </div>
+  <div style="text-align:right;">
+    <div>Mẫu số 01 - VT</div>
+    <div>(Ban hành theo Thông tư số 200/2014/TT-BTC<br/>ngày 22/12/2014 của Bộ Tài chính)</div>
+  </div>
+</div>
+
+<h1>Phiếu nhập kho</h1>
+
+<div class="meta-grid">
+  <div>
+    <label>Ngày lập phiếu</label>
+    <input type="date" id="noteDate" />
+  </div>
+  <div>
+    <label>Số phiếu</label>
+    <input id="noteNumber" placeholder="PNK-2026-0001" />
+  </div>
+  <div>
+    <label>Nợ (TK)</label>
+    <input id="debitAccount" placeholder="152" />
+  </div>
+  <div>
+    <label>Có (TK)</label>
+    <input id="creditAccount" placeholder="331" />
+  </div>
+  <div style="grid-column: span 2;">
+    <label>Họ và tên người giao hàng</label>
+    <input id="delivererName" placeholder="Nguyễn Văn A" />
+  </div>
+  <div>
+    <label>Theo (HĐ/PO) số</label>
+    <input id="refDocNo" placeholder="HĐ-0099" />
+  </div>
+  <div>
+    <label>Ngày chứng từ</label>
+    <input type="date" id="refDocDate" />
+  </div>
+  <div style="grid-column: span 2;">
+    <label>Của (đơn vị/nhà cung cấp)</label>
+    <input id="refDocIssuer" placeholder="Công ty TNHH ABC" />
+  </div>
+  <div>
+    <label>Nhập tại kho</label>
+    <input id="warehouseName" placeholder="Kho vật tư y tế trung tâm" />
+  </div>
+  <div>
+    <label>Địa điểm</label>
+    <input id="warehouseAddress" placeholder="Tầng 2, 73 Lý Nam Đế, Hà Nội" />
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">STT</th>
+      <th rowspan="2">Tên, nhãn hiệu, quy cách, phẩm chất vật tư, dụng cụ sản phẩm, hàng hoá</th>
+      <th rowspan="2">Mã số</th>
+      <th rowspan="2">Đơn vị tính</th>
+      <th colspan="2">Số lượng</th>
+      <th rowspan="2">Đơn giá</th>
+      <th rowspan="2">Thành tiền</th>
+      <th rowspan="2"></th>
+    </tr>
+    <tr>
+      <th>Theo chứng từ</th>
+      <th>Thực nhập</th>
+    </tr>
+  </thead>
+  <tbody id="itemsBody"></tbody>
+  <tfoot>
+    <tr>
+      <td colspan="7" style="text-align:right;">Cộng</td>
+      <td id="totalCell">0</td>
+      <td></td>
+    </tr>
+  </tfoot>
+</table>
+
+<div class="actions">
+  <button type="button" id="addRowBtn">+ Thêm dòng</button>
+  <button type="button" id="submitBtn">Lưu phiếu nhập kho</button>
+</div>
+
+<div id="message"></div>
+
+<div class="meta-grid" style="margin-top:16px;">
+  <div>
+    <label>Tổng số tiền (viết bằng chữ)</label>
+    <input id="totalInWords" />
+  </div>
+  <div>
+    <label>Số chứng từ gốc kèm theo</label>
+    <input type="number" id="attachedDocsCount" value="0" />
+  </div>
+</div>
+
+<div class="signatures">
+  <div>
+    Người lập phiếu<span>(Ký, họ tên)</span>
+    <input id="preparerName" placeholder="Họ và tên" />
+  </div>
+  <div>
+    Người giao hàng<span>(Ký, họ tên)</span>
+    <input id="delivererNameSignature" disabled placeholder="(theo thông tin phía trên)" />
+  </div>
+  <div>
+    Thủ kho<span>(Ký, họ tên)</span>
+    <input id="warehouseKeeperName" placeholder="Họ và tên" />
+  </div>
+  <div>
+    Kế toán trưởng<span>(Ký, họ tên)</span>
+    <input id="chiefAccountantName" placeholder="Họ và tên" />
+  </div>
+</div>
+
+</div><!-- /#createTab -->
+
+<div id="listTab" class="tab-content">
+
+  <div id="listView">
+    <div class="actions">
+      <button type="button" id="refreshListBtn">↻ Tải lại danh sách</button>
+    </div>
+    <table id="notesTable">
+      <thead>
+        <tr>
+          <th>Số phiếu</th>
+          <th>Ngày lập</th>
+          <th>Người giao hàng</th>
+          <th>Kho nhập</th>
+          <th class="num">Tổng tiền</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="notesTableBody"></tbody>
+    </table>
+    <div id="listEmptyState" class="empty-state" style="display:none;">Chưa có phiếu nhập kho nào.</div>
+    <div id="listLoadingState" class="loading-state" style="display:none;">Đang tải danh sách...</div>
+  </div>
+
+  <div id="detailView" style="display:none;">
+    <div class="actions back-btn">
+      <button type="button" id="backToListBtn">← Quay lại danh sách</button>
+    </div>
+    <h1 id="detailTitle">Chi tiết phiếu nhập kho</h1>
+    <div class="detail-grid" id="detailHeaderGrid"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Tên vật tư/hàng hoá</th>
+          <th>Mã số</th>
+          <th>Đơn vị tính</th>
+          <th>SL theo chứng từ</th>
+          <th>SL thực nhập</th>
+          <th>Đơn giá</th>
+          <th>Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody id="detailItemsBody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="7" style="text-align:right;">Cộng</td>
+          <td id="detailTotalCell">0</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div id="detailMessage"></div>
+  </div>
+
+</div><!-- /#listTab -->
+
+<script>
+let rowCounter = 0;
+
+function addRow(data = {}) {
+  rowCounter++;
+  const tbody = document.getElementById("itemsBody");
+  const tr = document.createElement("tr");
+  tr.dataset.line = rowCounter;
+  tr.innerHTML = `
+    <td>${rowCounter}</td>
+    <td><input data-field="material_name" value="${data.material_name || ""}" placeholder="Tên vật tư/hàng hoá" /></td>
+    <td><input data-field="material_code" value="${data.material_code || ""}" placeholder="VT001" /></td>
+    <td><input data-field="unit_name" value="${data.unit_name || ""}" placeholder="Cái" /></td>
+    <td><input data-field="qty_per_document" type="number" step="0.001" value="${data.qty_per_document || 0}" /></td>
+    <td><input data-field="qty_actual" type="number" step="0.001" value="${data.qty_actual || 0}" /></td>
+    <td><input data-field="unit_price" type="number" step="0.01" value="${data.unit_price || 0}" /></td>
+    <td class="line-amount">0</td>
+    <td><button type="button" class="removeBtn">X</button></td>
+  `;
+  tbody.appendChild(tr);
+  tr.querySelectorAll("input").forEach(inp => inp.addEventListener("input", recalculate));
+  tr.querySelector(".removeBtn").addEventListener("click", () => { tr.remove(); recalculate(); });
+  recalculate();
+}
+
+function recalculate() {
+  let total = 0;
+  document.querySelectorAll("#itemsBody tr").forEach(tr => {
+    const qty = parseFloat(tr.querySelector('[data-field="qty_actual"]').value) || 0;
+    const price = parseFloat(tr.querySelector('[data-field="unit_price"]').value) || 0;
+    const amount = Math.round(qty * price * 100) / 100;
+    tr.querySelector(".line-amount").textContent = amount.toLocaleString("vi-VN");
+    total += amount;
+  });
+  document.getElementById("totalCell").textContent = total.toLocaleString("vi-VN");
+}
+
+function syncDelivererSignature() {
+  document.getElementById("delivererNameSignature").value =
+    document.getElementById("delivererName").value;
+}
+
+function collectPayload() {
+  const items = [];
+  document.querySelectorAll("#itemsBody tr").forEach((tr, idx) => {
+    items.push({
+      line_no: idx + 1,
+      material_name: tr.querySelector('[data-field="material_name"]').value,
+      material_code: tr.querySelector('[data-field="material_code"]').value,
+      unit_name: tr.querySelector('[data-field="unit_name"]').value,
+      qty_per_document: parseFloat(tr.querySelector('[data-field="qty_per_document"]').value) || 0,
+      qty_actual: parseFloat(tr.querySelector('[data-field="qty_actual"]').value) || 0,
+      unit_price: parseFloat(tr.querySelector('[data-field="unit_price"]').value) || 0,
+    });
+  });
+
+  return {
+    company_name: document.getElementById("orgUnit").value,
+    department_name: document.getElementById("departmentName").value,
+    note_number: document.getElementById("noteNumber").value,
+    note_date: document.getElementById("noteDate").value,
+    debit_account: document.getElementById("debitAccount").value,
+    credit_account: document.getElementById("creditAccount").value,
+    deliverer_name: document.getElementById("delivererName").value,
+    ref_document_no: document.getElementById("refDocNo").value,
+    ref_document_date: document.getElementById("refDocDate").value || null,
+    ref_document_issuer: document.getElementById("refDocIssuer").value,
+    warehouse_name: document.getElementById("warehouseName").value,
+    warehouse_address: document.getElementById("warehouseAddress").value,
+    total_amount_in_words: document.getElementById("totalInWords").value,
+    attached_documents_count: parseInt(document.getElementById("attachedDocsCount").value, 10) || 0,
+    preparer_name: document.getElementById("preparerName").value,
+    warehouse_keeper_name: document.getElementById("warehouseKeeperName").value,
+    chief_accountant_name: document.getElementById("chiefAccountantName").value,
+    items,
+  };
+}
+
+async function submitNote() {
+  const payload = collectPayload();
+  const msgEl = document.getElementById("message");
+  try {
+    const res = await fetch("/api/goods-receipt-notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      msgEl.className = "error";
+      msgEl.textContent = (data.errors || [data.message]).join(" | ");
+      return;
+    }
+    msgEl.className = "success";
+    msgEl.textContent = `Đã lưu phiếu nhập kho #${data.note_number} thành công.`;
+  } catch (err) {
+    msgEl.className = "error";
+    msgEl.textContent = "Lỗi kết nối tới server: " + err.message;
+  }
+}
+
+document.getElementById("addRowBtn").addEventListener("click", () => addRow());
+document.getElementById("submitBtn").addEventListener("click", submitNote);
+document.getElementById("delivererName").addEventListener("input", syncDelivererSignature);
+
+// Mac dinh tao san 1 dong va set ngay hom nay
+addRow();
+document.getElementById("noteDate").valueAsDate = new Date();
+
+// ===========================================================
+// TAB SWITCHING
+// ===========================================================
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    const target = document.getElementById(btn.dataset.tab);
+    target.classList.add("active");
+    if (btn.dataset.tab === "listTab") {
+      showListView();
+      loadNotesList();
+    }
+  });
+});
+
+// ===========================================================
+// TAB "DANH SÁCH PHIẾU"
+// ===========================================================
+function formatCurrency(value) {
+  const num = parseFloat(value) || 0;
+  return num.toLocaleString("vi-VN");
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return value;
+  return d.toLocaleDateString("vi-VN");
+}
+
+function showListView() {
+  document.getElementById("listView").style.display = "block";
+  document.getElementById("detailView").style.display = "none";
+}
+
+function showDetailView() {
+  document.getElementById("listView").style.display = "none";
+  document.getElementById("detailView").style.display = "block";
+}
+
+async function loadNotesList() {
+  const tbody = document.getElementById("notesTableBody");
+  const emptyState = document.getElementById("listEmptyState");
+  const loadingState = document.getElementById("listLoadingState");
+
+  tbody.innerHTML = "";
+  emptyState.style.display = "none";
+  loadingState.style.display = "block";
+
+  try {
+    const res = await fetch("/api/goods-receipt-notes");
+    const notes = await res.json();
+    loadingState.style.display = "none";
+
+    if (!res.ok) {
+      tbody.innerHTML = `<tr><td colspan="6">Lỗi tải danh sách: ${notes.message || "Không xác định"}</td></tr>`;
+      return;
+    }
+    if (!notes.length) {
+      emptyState.style.display = "block";
+      return;
+    }
+
+    notes.forEach(note => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${note.note_number}</td>
+        <td>${formatDate(note.note_date)}</td>
+        <td>${note.deliverer_name || ""}</td>
+        <td>${note.warehouse_name || ""}</td>
+        <td class="num">${formatCurrency(note.total_amount)}</td>
+        <td><button type="button" class="link-btn" data-id="${note.id}">Xem chi tiết</button></td>
+      `;
+      tr.querySelector(".link-btn").addEventListener("click", () => viewNoteDetail(note.id));
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    loadingState.style.display = "none";
+    tbody.innerHTML = `<tr><td colspan="6">Lỗi kết nối tới server: ${err.message}</td></tr>`;
+  }
+}
+
+async function viewNoteDetail(id) {
+  const detailMsg = document.getElementById("detailMessage");
+  detailMsg.className = "";
+  detailMsg.textContent = "";
+
+  try {
+    const res = await fetch(`/api/goods-receipt-notes/${id}`);
+    const note = await res.json();
+
+    if (!res.ok) {
+      detailMsg.className = "error";
+      detailMsg.textContent = note.message || "Không tìm thấy phiếu nhập kho.";
+      showDetailView();
+      return;
+    }
+
+    document.getElementById("detailTitle").textContent = `Chi tiết phiếu nhập kho #${note.note_number}`;
+
+    const fields = [
+      ["Đơn vị", note.company_name || "-"],
+      ["Bộ phận", note.department_name || "-"],
+      ["Số phiếu", note.note_number],
+      ["Ngày lập phiếu", formatDate(note.note_date)],
+      ["Nợ (TK)", note.debit_account || "-"],
+      ["Có (TK)", note.credit_account || "-"],
+      ["Người giao hàng", note.deliverer_name],
+      ["Theo (HĐ/PO) số", note.ref_document_no || "-"],
+      ["Ngày chứng từ", formatDate(note.ref_document_date) || "-"],
+      ["Của (đơn vị/NCC)", note.ref_document_issuer || "-"],
+      ["Nhập tại kho", note.warehouse_name],
+      ["Địa điểm", note.warehouse_address || "-"],
+      ["Số chứng từ gốc kèm theo", note.attached_documents_count ?? 0],
+      ["Tổng tiền (viết bằng chữ)", note.total_amount_in_words || "-"],
+      ["Người lập phiếu", note.preparer_name || "-"],
+      ["Thủ kho", note.warehouse_keeper_name || "-"],
+      ["Kế toán trưởng", note.chief_accountant_name || "-"],
+    ];
+    document.getElementById("detailHeaderGrid").innerHTML = fields
+      .map(([label, value]) => `<div><dt>${label}</dt><dd>${value ?? ""}</dd></div>`)
+      .join("");
+
+    const itemsBody = document.getElementById("detailItemsBody");
+    const items = note.items || [];
+    itemsBody.innerHTML = items
+      .map((item, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td style="text-align:left;">${item.material_name}</td>
+          <td>${item.material_code || ""}</td>
+          <td>${item.unit_name || ""}</td>
+          <td class="num">${formatCurrency(item.qty_per_document)}</td>
+          <td class="num">${formatCurrency(item.qty_actual)}</td>
+          <td class="num">${formatCurrency(item.unit_price)}</td>
+          <td class="num">${formatCurrency(item.amount)}</td>
+        </tr>
+      `)
+      .join("");
+    document.getElementById("detailTotalCell").textContent = formatCurrency(note.total_amount);
+
+    showDetailView();
+  } catch (err) {
+    detailMsg.className = "error";
+    detailMsg.textContent = "Lỗi kết nối tới server: " + err.message;
+    showDetailView();
+  }
+}
+
+document.getElementById("refreshListBtn").addEventListener("click", loadNotesList);
+document.getElementById("backToListBtn").addEventListener("click", showListView);
+</script>
+
+</body>
+</html>
