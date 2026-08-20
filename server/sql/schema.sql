@@ -1,11 +1,3 @@
--- =========================================================
--- SCHEMA: Quan ly Phieu nhap kho (Mau so 01-VT, TT200/2014/TT-BTC)
--- Database: PostgreSQL
--- Da bo sung day du cac truong con thieu so voi mau (Don vi, Bo phan,
--- Nguoi lap phieu, Thu kho, Ke toan truong).
--- Cac thong tin nhu kho, vat tu, don vi tinh... luu truc tiep dang chuoi (string)
--- ngay trong bang, khong tach thanh bang danh muc rieng (khong dung FK).
--- =========================================================
 -- 1. Phieu nhap kho (header)
 CREATE TABLE goods_receipt_notes (
     id SERIAL PRIMARY KEY,
@@ -70,9 +62,7 @@ CREATE TABLE goods_receipt_note_items (
     -- Don gia
     amount NUMERIC(18, 2) GENERATED ALWAYS AS (qty_actual * unit_price) STORED -- Thanh tien
 );
--- =========================================================
 -- INDEXES
--- =========================================================
 CREATE INDEX idx_grn_note_date ON goods_receipt_notes(note_date);
 CREATE INDEX idx_grn_warehouse_name ON goods_receipt_notes(warehouse_name);
 CREATE INDEX idx_grn_items_note ON goods_receipt_note_items(note_id);
