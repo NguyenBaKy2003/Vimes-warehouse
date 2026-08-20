@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/api/goodsreceiptapi.ts","./src/components/notedetail.tsx","./src/pages/createnotepage.tsx","./src/pages/listnotepage.tsx","./src/types/goodsreceipt.ts","./src/utils/calc.ts"],"version":"5.9.3"}

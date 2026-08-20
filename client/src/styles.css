@@ -1,0 +1,190 @@
+body {
+  font-family: "Times New Roman", serif;
+  color: #222;
+  margin: 0;
+  background: #f5f5f5;
+}
+
+.page-container {
+  max-width: 900px;
+  margin: 24px auto;
+  background: #fff;
+  padding: 24px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 24px;
+}
+.header-row div {
+  font-size: 14px;
+}
+.org-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 6px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+th,
+td {
+  border: 1px solid #333;
+  padding: 6px;
+  font-size: 13px;
+  text-align: center;
+}
+td input {
+  border: none;
+  text-align: right;
+  padding: 2px;
+}
+td input.text-left,
+td .text-left {
+  text-align: left;
+}
+
+.actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+button {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.signatures {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  text-align: center;
+  margin-top: 40px;
+  gap: 8px;
+}
+.signatures div span {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.signatures input {
+  text-align: center;
+  margin-top: 4px;
+}
+
+.message {
+  margin-top: 12px;
+  padding: 8px;
+}
+.message.error {
+  background: #fdecea;
+  color: #b3261e;
+}
+.message.success {
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid #333;
+  margin-bottom: 20px;
+  font-family: Arial, sans-serif;
+}
+.tab-btn {
+  padding: 10px 20px;
+  border: 1px solid #333;
+  border-bottom: none;
+  background: #eee;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  color: #222;
+}
+.tab-btn.active {
+  background: #333;
+  color: #fff;
+  font-weight: bold;
+}
+
+#notesTable td,
+#notesTable th {
+  text-align: left;
+}
+#notesTable td.num,
+#notesTable th.num {
+  text-align: right;
+}
+.num {
+  text-align: right;
+}
+.link-btn {
+  background: none;
+  border: none;
+  color: #1a5276;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+}
+.back-btn {
+  margin-bottom: 12px;
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px 24px;
+  margin-bottom: 16px;
+  font-family: Arial, sans-serif;
+}
+.detail-grid dt {
+  font-weight: bold;
+  font-size: 12px;
+  color: #555;
+  margin-top: 8px;
+}
+.detail-grid dd {
+  margin: 0;
+  font-size: 14px;
+}
+.empty-state,
+.loading-state {
+  text-align: center;
+  color: #888;
+  padding: 24px;
+  font-family: Arial, sans-serif;
+}

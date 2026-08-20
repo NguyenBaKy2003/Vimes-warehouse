@@ -13,6 +13,17 @@ export class ValidationError extends Error {
 
 export class NotFoundError extends Error {}
 
+const PG_UNIQUE_VIOLATION = "23505";
+
+interface PgError extends Error {
+  code?: string;
+  constraint?: string;
+}
+
+function isPgUniqueViolation(err: unknown): err is PgError {
+  return !!err && typeof err === "object" && (err as PgError).code === PG_UNIQUE_VIOLATION;
+}
+
 export async function createGoodsReceiptNote(
   input: CreateGoodsReceiptNoteInput
 ): Promise<GoodsReceiptNote> {
@@ -27,35 +38,44 @@ export async function createGoodsReceiptNote(
 
     const totalAmount = calculateNoteTotal(input.items);
 
-    const noteResult = await client.query(
-      `INSERT INTO goods_receipt_notes
-        (company_name, department_name, note_number, note_date, debit_account, credit_account,
-         deliverer_name, ref_document_no, ref_document_date, ref_document_issuer, warehouse_name,
-         warehouse_address, total_amount, total_amount_in_words, attached_documents_count,
-         preparer_name, warehouse_keeper_name, chief_accountant_name)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
-       RETURNING *`,
-      [
-        input.company_name ?? null,
-        input.department_name ?? null,
-        input.note_number,
-        input.note_date,
-        input.debit_account ?? null,
-        input.credit_account ?? null,
-        input.deliverer_name,
-        input.ref_document_no ?? null,
-        input.ref_document_date ?? null,
-        input.ref_document_issuer ?? null,
-        input.warehouse_name,
-        input.warehouse_address ?? null,
-        totalAmount,
-        input.total_amount_in_words ?? null,
-        input.attached_documents_count ?? 0,
-        input.preparer_name ?? null,
-        input.warehouse_keeper_name ?? null,
-        input.chief_accountant_name ?? null,
-      ]
-    );
+    let noteResult;
+    try {
+      noteResult = await client.query(
+        `INSERT INTO goods_receipt_notes
+          (company_name, department_name, note_number, note_date, debit_account, credit_account,
+           deliverer_name, ref_document_no, ref_document_date, ref_document_issuer, warehouse_name,
+           warehouse_address, total_amount, total_amount_in_words, attached_documents_count,
+           preparer_name, warehouse_keeper_name, chief_accountant_name)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+         RETURNING *`,
+        [
+          input.company_name ?? null,
+          input.department_name ?? null,
+          input.note_number,
+          input.note_date,
+          input.debit_account ?? null,
+          input.credit_account ?? null,
+          input.deliverer_name,
+          input.ref_document_no ?? null,
+          input.ref_document_date ?? null,
+          input.ref_document_issuer ?? null,
+          input.warehouse_name,
+          input.warehouse_address ?? null,
+          totalAmount,
+          input.total_amount_in_words ?? null,
+          input.attached_documents_count ?? 0,
+          input.preparer_name ?? null,
+          input.warehouse_keeper_name ?? null,
+          input.chief_accountant_name ?? null,
+        ]
+      );
+    } catch (err) {
+      if (isPgUniqueViolation(err) && err.constraint === "goods_receipt_notes_note_number_key") {
+        throw new ValidationError([`Số phiếu "${input.note_number}" đã tồn tại, vui lòng chọn số phiếu khác`]);
+      }
+      throw err;
+    }
+
     const note = noteResult.rows[0];
 
     const itemRows: GoodsReceiptNoteItem[] = [];
