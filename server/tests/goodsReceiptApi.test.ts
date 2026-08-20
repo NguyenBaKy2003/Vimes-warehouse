@@ -3,9 +3,6 @@ import { createApp } from "../src/app";
 import * as service from "../src/services/goodsReceiptService";
 import { ValidationError, NotFoundError } from "../src/services/goodsReceiptService";
 
-// Mock cac ham cua service layer de test API/controller ma khong can ket noi PostgreSQL that,
-// nhung GIU NGUYEN class ValidationError/NotFoundError that de "instanceof" trong controller
-// hoat dong dung (jest.mock tu dong se pha vo instanceof neu auto-mock ca class).
 jest.mock("../src/services/goodsReceiptService", () => {
   const actual = jest.requireActual("../src/services/goodsReceiptService");
   return {
@@ -60,7 +57,7 @@ describe("API /api/goods-receipt-notes", () => {
     expect(res.body.note_number).toBe("PNK-0001");
     expect(res.body.company_name).toBe("Công ty CP Phần mềm Y tế Việt Nam");
     expect(res.body.department_name).toBe("Phòng Kho vận");
-    expect(res.body.preparer_name).toBe("Trần Thị BTrần Thị B");
+    expect(res.body.preparer_name).toBe("Trần Thị B");
     expect(res.body.warehouse_keeper_name).toBe("Lê Văn C");
     expect(res.body.chief_accountant_name).toBe("Phạm Thị D");
     expect(mockedService.createGoodsReceiptNote).toHaveBeenCalledTimes(1);
@@ -99,6 +96,25 @@ describe("API /api/goods-receipt-notes", () => {
 
     expect(res.status).toBe(400);
     expect(res.body.errors).toContain("Số phiếu (note_number) không được để trống");
+  });
+
+  it("POST trả về 400 (không phải 500) khi số phiếu bị trùng (unique violation)", async () => {
+    mockedService.createGoodsReceiptNote.mockRejectedValue(
+      new ValidationError(['Số phiếu "PNK-0001" đã tồn tại, vui lòng chọn số phiếu khác'])
+    );
+
+    const res = await request(app)
+      .post("/api/goods-receipt-notes")
+      .send({
+        note_number: "PNK-0001",
+        note_date: "2026-08-24",
+        deliverer_name: "Nguyễn Văn A",
+        warehouse_name: "Kho vật tư y tế trung tâm",
+        items: [{ line_no: 1, material_name: "Khẩu trang", qty_actual: 10, unit_price: 1000 }],
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.errors).toContain('Số phiếu "PNK-0001" đã tồn tại, vui lòng chọn số phiếu khác');
   });
 
   it("GET /:id trả về phiếu nhập kho khi tồn tại (kèm đủ các trường mới)", async () => {
